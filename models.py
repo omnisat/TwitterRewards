@@ -19,7 +19,7 @@ class CurvanceUser:
 
     def add_tweet(self, tweepy_tweet_object: Status):
         curvance_tweet = CurvanceTweet(tweepy_tweet_object)
-        self.curvance_tweets[curvance_tweet.tweet_id] = curvance_tweet
+        self.curvance_tweets[curvance_tweet.id] = curvance_tweet
 
     def compute_score(self):
         # Loop over all tweets and call CurvanceTweet.individual_score()
