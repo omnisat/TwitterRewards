@@ -19,7 +19,7 @@ For now, Twitter V2 API doesn't seem to return details about queried tweets besi
 
 
 Twitter V1.1 API should be used instead despite having lower limits for free-tier accounts.
-See pricing here : https://developer.twitter.com/en/pricing/search-30day 
+See limits and pricing here : https://developer.twitter.com/en/pricing/search-30day 
 
 
 When making a Twitter query, consider the operators/filters listed here : https://developer.twitter.com/en/docs/twitter-api/enterprise/rules-and-filtering/operators-by-product
