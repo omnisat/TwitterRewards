@@ -7,7 +7,7 @@ Here's a sample that you can use (only the order counts) :
 apikey=
 secret=
 bearer_token=
-access_token=-
+access_token=
 access_token_secret=
 label=
 ```
