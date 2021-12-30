@@ -29,7 +29,9 @@ and acknowledge that the free tier is labeled as "Sandbox"
 Some Useful links : 
 
 https://developer.twitter.com/en/docs/twitter-api/search-overview
+
 https://docs.tweepy.org/en/stable/api.html#premium-search-apis
+
 https://developer.twitter.com/en/docs/twitter-api/v1/data-dictionary/object-model/tweet
 
 
