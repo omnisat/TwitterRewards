@@ -37,8 +37,12 @@ https://developer.twitter.com/en/docs/twitter-api/v1/data-dictionary/object-mode
 
 ### Updates 31/12/21 : Some notes about pickled object, peewee and the sqlite database
 
-The `main.py` should now work correctly.
-It will create a pickled object from a sample request from twitter containing 10 tweets. This is used for debugging the creation and update of the database. The reason the pickled object hasn't been uploaded to github is that you should not load pickled objects from untrusted sources. Here, you will create and store your own so you won't use all your credits for twitter API calls (which are very limited).
+The `main.py` now works correctly.
+It will create a pickled object from a sample request from twitter containing 10 tweets. This is used to debug the creation and update of the database.
+
+The reason the pickled object hasn't been uploaded to github is that you should not load pickled objects from untrusted sources. 
+
+Here, you will create and store your own so you won't use all your credits for twitter API calls (which are very limited), and also be sure won't get hacked by me :D 
 
 Don't hesitate to use the open source sqlite browser to inspect the .sqlite file that the Client will generate https://sqlitebrowser.org/
 
@@ -48,9 +52,15 @@ Don't hesitate to run main.py multiple times or delete the database to check for
 ### Next plans on the roadmap 
 
 -The `Tw` client will need to be able to paginate bigger requests, 100 tweets at a time. 
+
 -Maybe add some missing fields from the Tweet object of the twitter API into the CurvanceTweet Object
+
 -A query should be done to construct back all the Curvance Users and Curvance tweets from the database. 
+
 -Reflexion about actual score and penalties, and which mathematical functions / algorithms to choose to compute the rewards.  
+
 -...
 
+#### More useful link : 
 
+Peewee documentation : https://docs.peewee-orm.com/en/latest/peewee/quickstart.html#
