@@ -1,6 +1,7 @@
 import tweepy
 from tweepy.models import ResultSet, User, Status
-import datetime
+from models import CurvanceTweet, CurvanceUser, db
+from helpers import convert_user_to_dict, convert_tweet_to_dict
 
 
 # Here is the client class that should parse all relevant tweets within the last 30 days. Iteration on the response
@@ -22,6 +23,8 @@ class Tw:
         self.auth = tweepy.OAuthHandler(consumer_key=self.public_key, consumer_secret=self.secret_key)
         self.auth.set_access_token(key=self.access_token, secret=self.access_token_secret)
         self.api = tweepy.API(self.auth)
+        self.db = db
+        self.db.create_tables([CurvanceUser, CurvanceTweet])
 
     def search_last_7_days(self, query: str):
         # Issues with V2 API as of end of 2021 : no information about each tweet for non-academical accounts
@@ -33,7 +36,9 @@ class Tw:
         response = self.api.search_30_day(label=self.environment_label, query=query, maxResults=max_results)
         return response
 
+    def store_response_to_db(self, response: ResultSet):
+        for tweet in response:
+            curvance_user = CurvanceUser.get_or_create(**convert_user_to_dict(tweet.user))[0]
 
-client = Tw()
-
-r = client.search_last_30_days(query='"@Curvance" -to:Curvance')
+            CurvanceTweet.get_or_create(**convert_tweet_to_dict(tweet), author=curvance_user)
+        pass
