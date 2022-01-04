@@ -6,6 +6,9 @@ def convert_tweet_to_dict(tweet: Status):
     tweet_dict['id'] = tweet.id
     tweet_dict['date'] = tweet.created_at
     tweet_dict['text'] = tweet.text
+    tweet_dict['lang'] = tweet.lang
+    tweet_dict['urls'] = '\n'.join([url['expanded_url'] for url in tweet.entities['urls']])
+    tweet_dict['author_name'] = tweet.user.screen_name
     tweet_dict['source'] = tweet.source
     tweet_dict['is_quote_status'] = tweet.is_quote_status
     tweet_dict['in_reply_to_screen_name'] = tweet.in_reply_to_screen_name

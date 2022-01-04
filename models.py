@@ -33,21 +33,28 @@ class CurvanceUser(peewee.Model):
 
 class CurvanceTweet(peewee.Model):
     id: int = peewee.IntegerField(primary_key=True, unique=True)
-    date: datetime.datetime = peewee.DateField()
+    date: datetime.datetime = peewee.DateTimeField()
     text: str = peewee.CharField()
     source: str = peewee.CharField()
+    lang: str = peewee.CharField()
+    urls: str = peewee.TextField(null=True)
     is_quote_status: bool = peewee.BooleanField()
     in_reply_to_screen_name: str = peewee.CharField(null=True)
     quote_count: int = peewee.IntegerField()
     reply_count: int = peewee.IntegerField()
     retweet_count: int = peewee.IntegerField()
     favorite_count: int = peewee.IntegerField()
+    author_name: str = peewee.CharField()
     author = peewee.ForeignKeyField(CurvanceUser, backref='all_tweets')
 
     class Meta:
         database = db
 
     def individual_tweet_score(self) -> float:
+        if self.lang == 'und' and (self.favorite_count + self.quote_count + self.retweet_count) == 0:
+            # Assigning 0 to undefined language Mostly monolitic emoticons
+            return 0
+
         score = 1
         score += self.favorite_count + 1.5 * self.quote_count + 2 * self.retweet_count
 
