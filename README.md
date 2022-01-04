@@ -51,11 +51,11 @@ Don't hesitate to run main.py multiple times or delete the database to check for
 
 ### Next plans on the roadmap 
 
-~-The `Tw` client will need to be able to paginate bigger requests, 100 tweets at a time. ~
+~~-The `Tw` client will need to be able to paginate bigger requests, 100 tweets at a time. ~~
 
 -Maybe add some missing fields from the Tweet object of the twitter API into the CurvanceTweet Object
 
-~A query should be done to construct back all the Curvance Users and Curvance tweets from the database. ~
+~~A query should be done to construct back all the Curvance Users and Curvance tweets from the database. ~~
 
 -Reflexion about actual score and penalties, and which mathematical functions / algorithms to choose to compute the rewards.  
 
