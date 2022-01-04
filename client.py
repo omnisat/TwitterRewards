@@ -11,10 +11,10 @@ from helpers import convert_user_to_dict, convert_tweet_to_dict
 #
 import logging
 
-#
-logger = logging.getLogger()
-logger.addHandler(logging.StreamHandler())
-logger.setLevel(logging.DEBUG)
+
+# logger = logging.getLogger()
+# logger.addHandler(logging.StreamHandler())
+# logger.setLevel(logging.DEBUG)
 
 
 class Tw:
