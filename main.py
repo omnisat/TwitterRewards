@@ -29,4 +29,4 @@ file = open('response_sample', 'rb')
 response_sample: ResultSet = pickle.load(file)
 file.close()
 
-# client.store_response_to_db(response_sample)
+client.store_response_to_db(response_sample)

@@ -2,6 +2,8 @@ import tweepy
 import datetime
 from tweepy.models import ResultSet, User, Status
 from models import CurvanceTweet, CurvanceUser, db
+from peewee import DoesNotExist
+
 from helpers import convert_user_to_dict, convert_tweet_to_dict
 
 # Here is the client class that should parse all relevant tweets within the last 30 days. Iteration on the response
@@ -59,18 +61,20 @@ class Tw:
                     result_set = result_set + response[0][0]
 
         else:
-            raise ValueError("days_back must be an integer between 1 and 30 or None")
+            raise ValueError("days_back must be an integer between 1 and 30")
 
         return result_set
 
     def store_response_to_db(self, response: ResultSet):
         for tweet in response:
-            curvance_user = CurvanceUser.get_or_create(**convert_user_to_dict(tweet.user))[0]
-
+            try:
+                curvance_user = CurvanceUser.get_by_id(tweet.user.id)
+            except DoesNotExist:
+                curvance_user = CurvanceUser.create(**convert_user_to_dict(tweet.user))
             CurvanceTweet.get_or_create(**convert_tweet_to_dict(tweet), author=curvance_user)
         pass
 
 
 if __name__ == '__main__':
     c = Tw()
-    r = c.search_up_to_30_days('"@Curvance"', max_results=100, days_back=3)
+    r = c.search_up_to_30_days('"@Curvance"', max_results=100, days_back=2)
