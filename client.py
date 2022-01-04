@@ -69,9 +69,15 @@ class Tw:
         for tweet in response:
             try:
                 curvance_user = CurvanceUser.get_by_id(tweet.user.id)
+                CurvanceUser.update(**convert_user_to_dict(tweet.user))
             except DoesNotExist:
                 curvance_user = CurvanceUser.create(**convert_user_to_dict(tweet.user))
-            CurvanceTweet.get_or_create(**convert_tweet_to_dict(tweet), author=curvance_user)
+            try:
+                CurvanceTweet.get_by_id(tweet.id)
+                CurvanceTweet.update(**convert_tweet_to_dict(tweet), author=curvance_user)
+            except DoesNotExist:
+                CurvanceTweet.create(**convert_tweet_to_dict(tweet), author=curvance_user)
+
         pass
 
 
