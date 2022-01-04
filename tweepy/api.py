@@ -11,6 +11,7 @@ from platform import python_version
 import sys
 import time
 from urllib.parse import urlencode
+import json
 
 import requests
 
@@ -277,7 +278,7 @@ class API:
             if use_cache and self.cache and method == 'GET' and result:
                 self.cache.store(f'{path}?{urlencode(params)}', result)
 
-            return result
+            return result, json.loads(resp.content)['next']
         finally:
             self.session.close()
     
