@@ -20,7 +20,7 @@ MAX_CVE_TO_DISTRIBUTE = 10000
 client = Tw()
 
 if not os.path.isfile('response_sample'):
-    r = client.search_up_to_30_days(query='"@Curvance" -to:Curvance')
+    r = client.search_up_to_30_days(query='"@Curvance"', max_results=100, days_back=1)
     file = open('response_sample', 'wb')
     pickle.dump(r, file)
     file.close()
