@@ -18,15 +18,17 @@ class CurvanceUser(peewee.Model):
     friends_count: int = peewee.IntegerField()
     statuses_count: int = peewee.IntegerField()
     verified: bool = peewee.BooleanField()
+    final_user_score = 0
 
     class Meta:
         database = db
 
-    def compute_score(self):
-        # Loop over all tweets and call CurvanceTweet.individual_score()
-        # Use frequency analysis / Count tweets to put a hard cap of tweets per period
+    def compute_user_score(self):
+        # Score multiplier from age and followers
 
-        pass
+        score = 1
+
+        return score
 
 
 class CurvanceTweet(peewee.Model):
@@ -46,4 +48,7 @@ class CurvanceTweet(peewee.Model):
         database = db
 
     def individual_tweet_score(self) -> float:
-        pass
+        score = 1
+        score += self.favorite_count + 1.5 * self.quote_count + 2 * self.retweet_count
+
+        return score
