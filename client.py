@@ -1,12 +1,20 @@
 import tweepy
+import datetime
 from tweepy.models import ResultSet, User, Status
 from models import CurvanceTweet, CurvanceUser, db
 from helpers import convert_user_to_dict, convert_tweet_to_dict
 
-
 # Here is the client class that should parse all relevant tweets within the last 30 days. Iteration on the response
 # should be done to create models objects that can be store into a sqlite database using an ORM.
 #
+import logging
+
+#
+logger = logging.getLogger()
+logger.addHandler(logging.StreamHandler())
+logger.setLevel(logging.DEBUG)
+
+
 class Tw:
     def __init__(self):
         self.file = open("logs.txt", 'r')
@@ -32,9 +40,28 @@ class Tw:
         # next_token = r.meta['next_token']
         return response
 
-    def search_last_30_days(self, query: str, max_results=10) -> ResultSet:
-        response = self.api.search_30_day(label=self.environment_label, query=query, maxResults=max_results)
-        return response
+    def search_up_to_30_days(self, query: str, max_results=10, days_back: int = 1) -> ResultSet:
+        result_set = ResultSet()
+
+        if 1 <= days_back <= 30:
+            from_date = (datetime.datetime.utcnow() - datetime.timedelta(days=days_back)).strftime('%Y%m%d%H%M')
+            response = self.api.search_30_day(label=self.environment_label, query=query, maxResults=max_results,
+                                              fromDate=from_date)
+            token = response[1]
+            result_set = result_set + response[0]
+            while token is not None:
+                response = self.api.search_30_day(label=self.environment_label, query=query, maxResults=max_results,
+                                                  fromDate=from_date, next=token)
+                token = response[1]
+                if type(response[0]) == ResultSet:
+                    result_set = result_set + response[0]
+                elif type(response[0][0]) == ResultSet:
+                    result_set = result_set + response[0][0]
+
+        else:
+            raise ValueError("days_back must be an integer between 1 and 30 or None")
+
+        return result_set
 
     def store_response_to_db(self, response: ResultSet):
         for tweet in response:
@@ -42,3 +69,8 @@ class Tw:
 
             CurvanceTweet.get_or_create(**convert_tweet_to_dict(tweet), author=curvance_user)
         pass
+
+
+if __name__ == '__main__':
+    c = Tw()
+    r = c.search_up_to_30_days('"@Curvance"', max_results=100, days_back=3)

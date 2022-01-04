@@ -278,10 +278,14 @@ class API:
             if use_cache and self.cache and method == 'GET' and result:
                 self.cache.store(f'{path}?{urlencode(params)}', result)
 
-            return result, json.loads(resp.content)['next']
+            try:
+                next_token = json.loads(resp.content)['next']
+            except KeyError:
+                next_token = None
+            return result, next_token
         finally:
             self.session.close()
-    
+
     # Premium Search APIs
 
     @pagination(mode='next')
@@ -3240,8 +3244,8 @@ class API:
 
     @payload('direct_message')
     def send_direct_message(
-        self, recipient_id, text, *, quick_reply_options=None,
-        attachment_type=None, attachment_media_id=None, ctas=None, **kwargs
+            self, recipient_id, text, *, quick_reply_options=None,
+            attachment_type=None, attachment_media_id=None, ctas=None, **kwargs
     ):
         """send_direct_message(recipient_id, text, *, quick_reply_options, \
                                attachment_type, attachment_media_id, ctas)
