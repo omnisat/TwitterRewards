@@ -1,6 +1,12 @@
 from tweepy.models import User, Status
 import peewee
 import datetime
+import spacy
+from helpers import pre_process_tweet
+from spacytextblob.spacytextblob import SpacyTextBlob
+
+nlp = spacy.load('en_core_web_trf')
+nlp.add_pipe('spacytextblob')
 
 # Models for Users and Tweets
 # Theses classes should be derived of Base class of an ORM afterwards
@@ -51,8 +57,10 @@ class CurvanceTweet(peewee.Model):
         database = db
 
     def individual_tweet_score(self) -> float:
+        text = pre_process_tweet(self.text)
+
         if self.lang == 'und' and (self.favorite_count + self.quote_count + self.retweet_count) == 0:
-            # Assigning 0 to undefined language Mostly monolitic emoticons
+            # Assigning 0 to undefined language with 0 engagement Mostly monolitic emoticons
             return 0
 
         score = 1

@@ -10,3 +10,7 @@ tweet-parser~=1.13.2
 urllib3~=1.26.7
 
 peewee~=3.14.8
+pandas~=1.3.5
+spacy~=3.2.1
+spacytextblob~=3.0.1
+contractions~=0.0.58

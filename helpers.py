@@ -1,4 +1,7 @@
 from tweepy.models import Status, User
+import re
+import contractions
+from spacy.lang.en.stop_words import STOP_WORDS
 
 
 def convert_tweet_to_dict(tweet: Status):
@@ -31,3 +34,16 @@ def convert_user_to_dict(user: User):
     user_dict['verified'] = user.verified
 
     return user_dict
+
+
+def pre_process_tweet(tweet_text: str):
+    text = tweet_text.lower()
+    text = re.sub(r'([A-Za-z0-9+_]+@[A-Za-z0-9+_]+\.[A-Za-z0-9+_]+)', '', text)  # remove emails
+    text = re.sub(r'https?://[^\s<>"]+|www\.[^\s<>"]+', '', text)  # remove links
+    text = re.sub('RT', '', text)  # remove RT
+    text = contractions.fix(text)  # expand contractions
+    text = re.sub('[^A-Z a-z 0-9-]+', '', text)  # remove special characters
+    text = " ".join(text.split())  # remove double spaces
+    text = " ".join(t for t in text.split() if t not in STOP_WORDS)  # remove stop words
+
+    return text
