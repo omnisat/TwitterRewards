@@ -1,5 +1,8 @@
+import pandas as pd
+
 import tweepy
 import datetime
+from typing import Union
 from tweepy.models import ResultSet, User, Status
 from models import CurvanceTweet, CurvanceUser, db
 from peewee import DoesNotExist
@@ -42,7 +45,7 @@ class Tw:
         # next_token = r.meta['next_token']
         return response
 
-    def search_up_to_30_days(self, query: str, max_results=10, days_back: int = 1) -> ResultSet:
+    def search_up_to_30_days(self, query: str, max_results=100, days_back: int = 1) -> ResultSet:
         result_set = ResultSet()
 
         if 1 <= days_back <= 30:
@@ -65,7 +68,28 @@ class Tw:
 
         return result_set
 
-    def store_response_to_db(self, response: ResultSet):
+    def update_db_since_last_date(self, query: str):
+        last_tweet_date = self.get_most_recent_tweet_date()
+        if last_tweet_date is None:
+            n_days = 30
+        elif type(last_tweet_date) == datetime.datetime:
+            from_date = max(self.get_most_recent_tweet_date().replace(tzinfo=None),
+                            (datetime.datetime.utcnow() - datetime.timedelta(days=30)))
+            n_days = int((datetime.datetime.utcnow() - from_date).days) + 1
+
+        response = self.search_up_to_30_days(query=query, days_back=n_days)
+        self.store_response_to_db(response)
+
+    @staticmethod
+    def get_most_recent_tweet_date() -> Union[datetime.datetime, None]:
+        try:
+            date = CurvanceTweet.select().order_by(CurvanceTweet.date.desc()).limit(1)[0].date
+            return pd.to_datetime(date).to_pydatetime()
+        except IndexError:
+            return None
+
+    @staticmethod
+    def store_response_to_db(response: ResultSet):
         for tweet in response:
             try:
                 curvance_user = CurvanceUser.get_by_id(tweet.user.id)
@@ -83,4 +107,5 @@ class Tw:
 
 if __name__ == '__main__':
     c = Tw()
-    r = c.search_up_to_30_days('"@Curvance"', max_results=100, days_back=2)
+    # r = c.search_up_to_30_days('"@Curvance"', max_results=100, days_back=2)
+    x = c.get_most_recent_tweet_date()
