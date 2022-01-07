@@ -31,8 +31,9 @@ class CurvanceUser(peewee.Model):
 
     def compute_user_score(self, percentile_score: float):
         # Score multiplier from age and followers
+        assert 0 <= percentile_score <= 1
 
-        score = 1 + percentile_score
+        score = 1 * (1 + percentile_score)
 
         return score
 
@@ -60,13 +61,13 @@ class CurvanceTweet(peewee.Model):
         text = pre_process_tweet(self.text)
         sentiment = nlp(text)
         polarity = sentiment._.polarity
-        nlp_score = 1 + max(0, polarity)  # gives max a 50% bonus
+        nlp_score = 1 + 2*max(0, polarity)  # gives max a 200% bonus
 
-        if self.lang == 'und' and (self.favorite_count + self.quote_count + self.retweet_count) == 0:
+        if self.lang == 'und' and (self.favorite_count + self.quote_count + self.retweet_count + self.reply_count) == 0:
             # Assigning 0 to undefined language with 0 engagement Mostly monolitic emoticons
             return 0
 
         score = 1
-        score += self.favorite_count + 1.5 * self.quote_count + 2 * self.retweet_count
+        score += 1 * self.favorite_count + 1 * self.quote_count + 1 * self.retweet_count
 
         return score * nlp_score
