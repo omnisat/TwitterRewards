@@ -29,10 +29,10 @@ class CurvanceUser(peewee.Model):
     class Meta:
         database = db
 
-    def compute_user_score(self):
+    def compute_user_score(self, percentile_score: float):
         # Score multiplier from age and followers
 
-        score = 1
+        score = 1 + percentile_score
 
         return score
 

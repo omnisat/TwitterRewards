@@ -1,3 +1,6 @@
+import pandas as pd
+import numpy as np
+
 from client import Tw
 import os.path
 from tweepy.models import ResultSet
@@ -36,7 +39,9 @@ class CurvanceScoreDistributor:
     def __init__(self):
         self.all_curvance_users = [cve_user for cve_user in CurvanceUser.select()]
         self.max_tweets_per_day_allowed = 5
-        self.n_followers_sample = []
+        self.n_followers_percentiles = pd.Series()
+        self.percentiles_array = None
+        self.percentile_step = 0.05
         self.add_users_statistics()
 
     def compute(self):
@@ -63,16 +68,32 @@ class CurvanceScoreDistributor:
                     this_day_scores = [individual_tweet_score]
                     number_of_tweet_this_day = 1
 
-            user_score = curvance_user.compute_user_score()
+            percentile_score = self.get_percentile_score(curvance_user.followers_count)
+            user_score = curvance_user.compute_user_score(percentile_score=percentile_score)
             curvance_user.final_user_score = user_score * sum_of_individual_tweet_score
             print(curvance_user.user_tag + ' score : ', curvance_user.user_score)
 
-    def add_best_scores_of_the_day(self, this_day_scores: list):
+    def add_best_scores_of_the_day(self, this_day_scores: list) -> float:
         scores = this_day_scores
         scores.sort(reverse=True)
         return sum(scores[:self.max_tweets_per_day_allowed])
 
     def add_users_statistics(self):
+        sample = []
         for user in self.all_curvance_users:
-            self.n_followers_sample.append(user.followers_count)
+            sample.append(user.followers_count)
+        self.n_followers_percentiles = pd.Series(sample).describe(percentiles=self.percentiles_array)[4:-1]
 
+    def get_percentile_score(self, n_follower: int) -> float:
+        index = 0
+        if n_follower == 0:
+            return 0
+        for i in range(self.n_followers_percentiles.shape[0]):
+            if n_follower >= self.n_followers_percentiles[0]:
+                index = i
+            else:
+                break
+        return self.percentiles_array[index] + self.percentile_step
+
+
+rewards = CurvanceScoreDistributor()
