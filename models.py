@@ -58,6 +58,9 @@ class CurvanceTweet(peewee.Model):
 
     def individual_tweet_score(self) -> float:
         text = pre_process_tweet(self.text)
+        sentiment = nlp(text)
+        polarity = sentiment._.polarity
+        nlp_score = 1 + max(0, polarity)  # gives max a 50% bonus
 
         if self.lang == 'und' and (self.favorite_count + self.quote_count + self.retweet_count) == 0:
             # Assigning 0 to undefined language with 0 engagement Mostly monolitic emoticons
@@ -66,4 +69,4 @@ class CurvanceTweet(peewee.Model):
         score = 1
         score += self.favorite_count + 1.5 * self.quote_count + 2 * self.retweet_count
 
-        return score
+        return score * nlp_score
