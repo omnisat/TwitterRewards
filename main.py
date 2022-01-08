@@ -39,10 +39,9 @@ class CurvanceScoreDistributor:
     def __init__(self):
         self.all_curvance_users = [cve_user for cve_user in CurvanceUser.select()]
         self.max_tweets_per_day_allowed = 5
-        self.n_followers_percentiles = pd.Series()
+        self.n_followers_percentiles = pd.Series(dtype=float)
 
-        self.percentile_step = 0.05
-        self.percentiles_array = np.arange(0, 1, self.percentile_step)
+        self.percentiles_array = np.linspace(0, 1, 21)
         self.add_users_statistics()
         self.results = []
 
@@ -76,7 +75,8 @@ class CurvanceScoreDistributor:
             curvance_user.final_user_score = user_score * sum_of_individual_tweet_score
 
             self.results.append([curvance_user.user_tag, curvance_user.final_user_score])
-            print(curvance_user.user_tag + ' score : ', curvance_user.final_user_score)
+            print(curvance_user.user_tag + ' score (user*tweets) : ', user_score, '*', sum_of_individual_tweet_score,
+                  " = ", curvance_user.final_user_score)
 
         return self.results
 
@@ -99,15 +99,13 @@ class CurvanceScoreDistributor:
         :param n_follower:
         :return:
         """
-        index = 0
+        index = np.searchsorted(self.n_followers_percentiles, n_follower, side='right')
         if n_follower == 0:
             return 0
-        for i in range(self.n_followers_percentiles.shape[0]):
-            if n_follower >= self.n_followers_percentiles[0]:
-                index = i
-            else:
-                break
-        return self.percentiles_array[index] + self.percentile_step
+        elif index < self.percentiles_array.shape[0]:
+            return self.percentiles_array[index]
+        elif index == self.percentiles_array.shape[0]:
+            return 1
 
 
 rewards = CurvanceScoreDistributor()
