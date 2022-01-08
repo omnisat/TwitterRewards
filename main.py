@@ -40,8 +40,9 @@ class CurvanceScoreDistributor:
         self.all_curvance_users = [cve_user for cve_user in CurvanceUser.select()]
         self.max_tweets_per_day_allowed = 5
         self.n_followers_percentiles = pd.Series()
-        self.percentiles_array = None
+
         self.percentile_step = 0.05
+        self.percentiles_array = np.arange(0, 1, self.percentile_step)
         self.add_users_statistics()
         self.results = []
 
@@ -55,17 +56,17 @@ class CurvanceScoreDistributor:
             sum_of_individual_tweet_score = 0
             number_of_tweet_this_day = 0
             this_day_scores = []
-            this_day_date = all_tweets_from_user_sorted_by_date[0].date.date()
+            this_day_date = pd.to_datetime(all_tweets_from_user_sorted_by_date[0].date).to_pydatetime().date()
 
             for tweet in all_tweets_from_user_sorted_by_date:
                 individual_tweet_score = tweet.individual_tweet_score()
-
-                if tweet.date.date() == this_day_date:
+                tweet_date = pd.to_datetime(tweet.date).to_pydatetime().date()
+                if tweet_date == this_day_date:
                     number_of_tweet_this_day += 1
                     this_day_scores.append(individual_tweet_score)
-                if tweet.date.date() > this_day_date:
+                if tweet_date > this_day_date:
                     sum_of_individual_tweet_score += self.add_best_scores_of_the_day(this_day_scores)
-                    this_day_date = tweet.date.date()
+                    this_day_date = tweet_date
                     this_day_scores = [individual_tweet_score]
                     number_of_tweet_this_day = 1
 
@@ -75,7 +76,7 @@ class CurvanceScoreDistributor:
             curvance_user.final_user_score = user_score * sum_of_individual_tweet_score
 
             self.results.append([curvance_user.user_tag, curvance_user.final_user_score])
-            print(curvance_user.user_tag + ' score : ', curvance_user.user_score)
+            print(curvance_user.user_tag + ' score : ', curvance_user.final_user_score)
 
         return self.results
 
@@ -110,3 +111,4 @@ class CurvanceScoreDistributor:
 
 
 rewards = CurvanceScoreDistributor()
+rewards.compute_scores()
