@@ -42,7 +42,7 @@ def pre_process_tweet(tweet_text: str):
     text = re.sub(r'https?://[^\s<>"]+|www\.[^\s<>"]+', '', text)  # remove links
     text = re.sub("@[A-Za-z0-9_]+", "", text)  # remove mentions
     text = re.sub("#[A-Za-z0-9_]+", "", text)  # remove hashtags
-    text = re.sub('RT', '', text)  # remove RT
+    text = re.sub('rt', '', text)  # remove RT
     text = contractions.fix(text)  # expand contractions
     text = re.sub('[^A-Z a-z 0-9-]+', '', text)  # remove special characters
     text = " ".join(text.split())  # remove double spaces
