@@ -59,7 +59,8 @@ class CurvanceScoreDistributor:
 
             for tweet in all_tweets_from_user_sorted_by_date:
 
-                individual_tweet_score = tweet.individual_tweet_score()
+                individual_tweet_score = tweet.individual_tweet_score(
+                    percentile_score=self.get_percentile_engagement_score(tweet.get_engagement_score()))
                 tweet_date = pd.to_datetime(tweet.date).to_pydatetime().date()
 
                 if tweet_date == this_day_date:
