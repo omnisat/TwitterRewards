@@ -48,14 +48,3 @@ Don't hesitate to use the open source sqlite browser to inspect the .sqlite file
 
 Don't hesitate to run main.py multiple times or delete the database to check for errors, but for now, it works ! 
 
-
-### Next plans on the roadmap 
-
--Maybe add some missing fields from the Tweet object of the twitter API into the CurvanceTweet Object
-
--Reflexion and implementation of actual score and penalties, and which mathematical functions / algorithms to choose to compute the rewards.  
-
-
-#### More useful link : 
-
-Peewee documentation : https://docs.peewee-orm.com/en/latest/peewee/quickstart.html#
