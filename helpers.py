@@ -13,6 +13,11 @@ def convert_tweet_to_dict(tweet: Status):
     tweet_dict['urls'] = '\n'.join([url['expanded_url'] for url in tweet.entities['urls']])
     tweet_dict['author_name'] = tweet.user.screen_name
     tweet_dict['source'] = tweet.source
+    if hasattr(tweet, 'extended_entities'):
+        if 'media' in tweet.extended_entities:
+            tweet_dict['has_media'] = True
+    else:
+        tweet_dict['has_media'] = False
     tweet_dict['is_quote_status'] = tweet.is_quote_status
     tweet_dict['in_reply_to_screen_name'] = tweet.in_reply_to_screen_name
     tweet_dict['quote_count'] = tweet.quote_count
@@ -37,15 +42,42 @@ def convert_user_to_dict(user: User):
 
 
 def pre_process_tweet(tweet_text: str):
-    text = tweet_text.lower()
+    text = re.sub('RT', '', tweet_text)  # remove RT
+    text = text.replace('\n', ' ')
+    text = text.lower()
+    text = re.sub('^0x[a-fA-F0-9]{40}$', '', text)  # remove eth addresses
     text = re.sub(r'([A-Za-z0-9+_]+@[A-Za-z0-9+_]+\.[A-Za-z0-9+_]+)', '', text)  # remove emails
     text = re.sub(r'https?://[^\s<>"]+|www\.[^\s<>"]+', '', text)  # remove links
     text = re.sub("@[A-Za-z0-9_]+", "", text)  # remove mentions
     text = re.sub("#[A-Za-z0-9_]+", "", text)  # remove hashtags
-    text = re.sub('rt', '', text)  # remove RT
     text = contractions.fix(text)  # expand contractions
     text = re.sub('[^A-Z a-z 0-9-]+', '', text)  # remove special characters
     text = " ".join(text.split())  # remove double spaces
+    text = " ".join(t for t in text.split() if t not in STOP_WORDS)  # remove stop words
+
+    return text
+
+
+def pre_process_tweet2(tweet_text: str):
+    text = re.sub('RT', '', tweet_text)  # remove RT
+    text = text.replace('\n', ' ')
+    text = text.lower()
+    text = re.sub('^0x[a-fA-F0-9]{40}$', '', text)  # remove eth addresses
+
+    text = re.sub(r'([A-Za-z0-9+_]+@[A-Za-z0-9+_]+\.[A-Za-z0-9+_]+)', '', text)  # remove emails
+
+    text = re.sub(r'https?://[^\s<>"]+|www\.[^\s<>"]+', '', text)  # remove links
+
+    text = re.sub("@[A-Za-z0-9_]+", "", text)  # remove mentions
+
+    text = re.sub("#[A-Za-z0-9_]+", "", text)  # remove hashtags
+
+    text = contractions.fix(text)  # expand contractions
+    print(text)
+    text = re.sub('[^A-Z a-z 0-9-]+', '', text)  # remove special characters
+    print(text)
+    text = " ".join(text.split())  # remove double spaces
+    print(text)
     text = " ".join(t for t in text.split() if t not in STOP_WORDS)  # remove stop words
 
     return text
