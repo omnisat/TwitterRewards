@@ -40,8 +40,9 @@ class CurvanceScoreDistributor:
         self.all_curvance_users = [cve_user for cve_user in CurvanceUser.select()]
         self.max_tweets_per_day_allowed = 5
         self.n_followers_percentiles = pd.Series(dtype=float)
+        self.engagement_percentiles = pd.Series(dtype=float)
 
-        self.percentiles_array = np.linspace(0, 1, 21)
+        self.percentiles_array = np.linspace(0, 1, 100)
         self.add_users_statistics()
         self.results = []
 
@@ -53,30 +54,33 @@ class CurvanceScoreDistributor:
             all_tweets_from_user_sorted_by_date = [tweet for tweet in
                                                    curvance_user.all_tweets.order_by(CurvanceTweet.date.asc())]
             sum_of_individual_tweet_score = 0
-            number_of_tweet_this_day = 0
             this_day_scores = []
             this_day_date = pd.to_datetime(all_tweets_from_user_sorted_by_date[0].date).to_pydatetime().date()
 
             for tweet in all_tweets_from_user_sorted_by_date:
+
                 individual_tweet_score = tweet.individual_tweet_score()
                 tweet_date = pd.to_datetime(tweet.date).to_pydatetime().date()
+
                 if tweet_date == this_day_date:
-                    number_of_tweet_this_day += 1
                     this_day_scores.append(individual_tweet_score)
                 if tweet_date > this_day_date:
                     sum_of_individual_tweet_score += self.add_best_scores_of_the_day(this_day_scores)
                     this_day_date = tweet_date
                     this_day_scores = [individual_tweet_score]
-                    number_of_tweet_this_day = 1
+                if tweet.id == all_tweets_from_user_sorted_by_date[-1].id:
+                    sum_of_individual_tweet_score += self.add_best_scores_of_the_day(this_day_scores)
 
-            percentile_score = self.get_percentile_score(n_follower=curvance_user.followers_count)
+            percentile_score = self.get_percentile_user_score(n_follower=curvance_user.followers_count)
             user_score = curvance_user.compute_user_score(percentile_score=percentile_score)
 
             curvance_user.final_user_score = user_score * sum_of_individual_tweet_score
 
             self.results.append([curvance_user.user_tag, curvance_user.final_user_score])
-            print(curvance_user.user_tag + ' score (user*tweets) : ', user_score, '*', sum_of_individual_tweet_score,
-                  " = ", curvance_user.final_user_score)
+            if curvance_user.final_user_score > 0:
+                print(curvance_user.user_tag + ' score (user*tweets) : ', user_score, '*',
+                      sum_of_individual_tweet_score,
+                      " = ", curvance_user.final_user_score)
 
         return self.results
 
@@ -85,13 +89,23 @@ class CurvanceScoreDistributor:
         scores.sort(reverse=True)
         return sum(scores[:self.max_tweets_per_day_allowed])
 
-    def add_users_statistics(self):
-        sample = []
+    def add_users_statistics(self) -> None:
+        n_follower_sample = []
+        engagement_sample = []
+        tweet: CurvanceTweet
         for user in self.all_curvance_users:
-            sample.append(user.followers_count)
-        self.n_followers_percentiles = pd.Series(sample).describe(percentiles=self.percentiles_array)[4:-1]
+            n_follower_sample.append(user.followers_count)
+            tweets = [tweet for tweet in user.all_tweets]
+            for tweet in tweets:
+                if tweet.is_passing_filter():
+                    engagement_score = tweet.get_engagement_score()
+                    if engagement_score > 0:
+                        engagement_sample.append(engagement_score)
 
-    def get_percentile_score(self, n_follower: int) -> float:
+        self.engagement_percentiles = pd.Series(engagement_sample).describe(percentiles=self.percentiles_array)[4:-1]
+        self.n_followers_percentiles = pd.Series(n_follower_sample).describe(percentiles=self.percentiles_array)[4:-1]
+
+    def get_percentile_user_score(self, n_follower: int) -> float:
         """
         Returns a value between 0 and 1 based on percentiles. If you have more followers than 50% of people, returns 0.5
         If you have more followers than 10% of people, returns 0.1. If more than 90% returns 0.9.
@@ -107,6 +121,15 @@ class CurvanceScoreDistributor:
         elif index == self.percentiles_array.shape[0]:
             return 1
 
+    def get_percentile_engagement_score(self, engagement_score: int) -> float:
+        index = np.searchsorted(self.engagement_percentiles, engagement_score, side='right')
+        if engagement_score == 0:
+            return 0
+        elif index < self.percentiles_array.shape[0]:
+            return self.percentiles_array[index]
+        elif index == self.percentiles_array.shape[0]:
+            return 1
+
 
 rewards = CurvanceScoreDistributor()
-rewards.compute_scores()
+# rewards.compute_scores()
