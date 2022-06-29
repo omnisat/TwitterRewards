@@ -42,7 +42,7 @@ It will create a pickled object from a sample request from twitter containing 10
 
 The reason the pickled object hasn't been uploaded to github is that you should not load pickled objects from untrusted sources. 
 
-Here, you will create and store your own so you won't use all your credits for twitter API calls (which are very limited), and also be sure won't get hacked by me :D 
+Here, you will create and store your own so you won't use all your credits for twitter API calls (which are very limited).
 
 Don't hesitate to use the open source sqlite browser to inspect the .sqlite file that the Client will generate https://sqlitebrowser.org/
 
