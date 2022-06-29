@@ -1,4 +1,4 @@
-## A script to parse, store and rate tweets for that are mentioning a specific twitter @account.
+## A script to parse, store and rate tweets that are mentioning a specific twitter @account.
 
 In order to use the client, you should place a `logs.txt` file at the root of the repository containing your api keys and the dev environment label.  
 You should be able to find/create all of those in your twitter developer portal : https://developer.twitter.com/en/portal/dashboard 
