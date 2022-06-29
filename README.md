@@ -1,4 +1,4 @@
-## A script to parse, store and rate tweets for Curvance Rewards. 
+## A script to parse, store and rate tweets for that are mentioning a specific twitter @account.
 
 In order to use the client, you should place a `logs.txt` file at the root of the repository containing your api keys and the dev environment label.  
 You should be able to find/create all of those in your twitter developer portal : https://developer.twitter.com/en/portal/dashboard 
@@ -50,7 +50,7 @@ Don't hesitate to run main.py multiple times or delete the database to check for
 
 ### Update : 29/06/22
 
-Project is canceled by team but is shown as reference. 
+Project is canceled by the original team that requested it but is shown as reference. The twitter request can be adapted in `main.py` 
 You can find below the algo that was used. 
 
 
