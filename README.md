@@ -46,5 +46,13 @@ Here, you will create and store your own so you won't use all your credits for t
 
 Don't hesitate to use the open source sqlite browser to inspect the .sqlite file that the Client will generate https://sqlitebrowser.org/
 
-Don't hesitate to run main.py multiple times or delete the database to check for errors, but for now, it works ! 
+Don't hesitate to run main.py multiple times or delete the database to check for errors.
 
+### Update : 29/06/22
+
+Project is canceled by team but is shown as reference. 
+You can find below the algo that was used. 
+
+
+
+![curvance_rewards_schema](https://user-images.githubusercontent.com/96737978/176463107-53b021c3-24d8-4ebb-bff1-433e2f997f3d.png)
